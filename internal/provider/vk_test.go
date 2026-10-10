@@ -1,4 +1,4 @@
-package main
+package provider
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"ad-skip-segment-eval/internal/ytdlp"
 )
 
-func TestPickTrackVKShapes(t *testing.T) {
+func TestVKPickTrackShapes(t *testing.T) {
 	manifest := ytdlp.Track{Ext: "vtt", URL: "u1", ManifestURL: "m1"}
 	cases := []struct {
 		name string
@@ -24,9 +24,22 @@ func TestPickTrackVKShapes(t *testing.T) {
 	}
 	for _, c := range cases {
 		info := &ytdlp.Info{Subtitles: map[string][]ytdlp.Track{"ru": c.subs}, AutomaticCaptions: c.auto}
-		_, typ, _, ok := pickTrack(info, "ru")
+		_, typ, _, ok := vk{}.PickTrack(info, "ru")
 		if typ != c.want || ok != c.ok {
 			t.Errorf("%s: got %s/%v want %s/%v", c.name, typ, ok, c.want, c.ok)
 		}
+	}
+}
+
+func TestRegistry(t *testing.T) {
+	p, err := Lookup("vk")
+	if err != nil || p.Name() != "vk" {
+		t.Fatalf("vk not registered: %v", err)
+	}
+	if p.VideoURL("-1_2") != "https://vk.com/video-1_2" {
+		t.Errorf("url: %s", p.VideoURL("-1_2"))
+	}
+	if _, err := Lookup("nope"); err == nil {
+		t.Error("unknown provider must fail")
 	}
 }
