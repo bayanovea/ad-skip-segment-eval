@@ -43,3 +43,20 @@ func TestRegistry(t *testing.T) {
 		t.Error("unknown provider must fail")
 	}
 }
+
+func TestVKLinkAt(t *testing.T) {
+	v := vk{}
+	for _, c := range []struct {
+		sec  int
+		want string
+	}{
+		{1992, "https://vkvideo.ru/video-1_456000001?t=33m12s"},
+		{3843, "https://vkvideo.ru/video-1_456000001?t=1h4m3s"},
+		{7, "https://vkvideo.ru/video-1_456000001?t=7s"},
+		{-2, "https://vkvideo.ru/video-1_456000001?t=0s"},
+	} {
+		if got := v.LinkAt("-1_456000001", c.sec); got != c.want {
+			t.Errorf("LinkAt(%d) = %s, want %s", c.sec, got, c.want)
+		}
+	}
+}
